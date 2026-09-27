@@ -1444,6 +1444,595 @@ function selectDiscipline(name,element){
     return copy;
   }
 
+/* =========================================
+   EXAMINATION ENGINE
+========================================= */
+
+function startExam(){
+
+  if(!selectedDiscipline){
+    alert("Please select a discipline first.");
+    return;
+  }
+
+  let bank;
+
+  if(selectedDiscipline === "mixed"){
+    bank = [
+      ...civilQuestions,
+      ...qaqcQuestions
+    ];
+  } else {
+    bank = questionBanks[selectedDiscipline];
+  }
+
+  if(!bank || bank.length === 0){
+    alert(
+      "The " +
+      disciplineNames[selectedDiscipline] +
+      " question bank has not been added yet."
+    );
+    return;
+  }
+
+  /*
+    TEMPORARY:
+    Current Civil and QA/QC banks contain fewer than 100 questions.
+    We repeat and shuffle them so the exam engine can be fully tested
+    with 100 questions.
+  */
+
+  let expandedBank = [];
+
+  while(expandedBank.length < 100){
+    expandedBank = expandedBank.concat(shuffle(bank));
+  }
+
+  examQuestions = shuffle(expandedBank).slice(0,100);
+
+  currentQuestion = 0;
+  answers = new Array(examQuestions.length).fill(null);
+
+  secondsRemaining = 7200;
+
+  document
+    .getElementById("homeScreen")
+    .classList.add("hidden");
+
+  document
+    .getElementById("resultScreen")
+    .classList.add("hidden");
+
+  document
+    .getElementById("examScreen")
+    .classList.remove("hidden");
+
+  document.getElementById("examTitle").textContent =
+    disciplineNames[selectedDiscipline] +
+    " Examination";
+
+  createNavigator();
+  renderQuestion();
+  updateTimer();
+
+  if(timerInterval){
+    clearInterval(timerInterval);
+  }
+
+  timerInterval = setInterval(function(){
+
+    secondsRemaining--;
+
+    updateTimer();
+
+    if(secondsRemaining <= 0){
+
+      clearInterval(timerInterval);
+
+      submitExam(true);
+    }
+
+  },1000);
+}
+
+
+/* =========================================
+   TIMER
+========================================= */
+
+function updateTimer(){
+
+  let hours =
+    Math.floor(secondsRemaining / 3600);
+
+  let minutes =
+    Math.floor(
+      (secondsRemaining % 3600) / 60
+    );
+
+  let seconds =
+    secondsRemaining % 60;
+
+  document.getElementById("timer").textContent =
+    String(hours).padStart(2,"0") +
+    ":" +
+    String(minutes).padStart(2,"0") +
+    ":" +
+    String(seconds).padStart(2,"0");
+}
+
+
+/* =========================================
+   QUESTION NAVIGATOR
+========================================= */
+
+function createNavigator(){
+
+  const navigator =
+    document.getElementById("navigator");
+
+  navigator.innerHTML = "";
+
+  examQuestions.forEach(function(question,index){
+
+    const button =
+      document.createElement("button");
+
+    button.className = "nav-btn";
+
+    button.textContent = index + 1;
+
+    button.onclick = function(){
+
+      currentQuestion = index;
+
+      renderQuestion();
+    };
+
+    navigator.appendChild(button);
+  });
+}
+
+
+/* =========================================
+   RENDER QUESTION
+========================================= */
+
+function renderQuestion(){
+
+  if(
+    currentQuestion < 0 ||
+    currentQuestion >= examQuestions.length
+  ){
+    return;
+  }
+
+  const question =
+    examQuestions[currentQuestion];
+
+  document.getElementById("questionNumber")
+    .textContent =
+    "Question " +
+    (currentQuestion + 1) +
+    " of " +
+    examQuestions.length;
+
+  document.getElementById("questionText")
+    .textContent =
+    question.question;
+
+  const options =
+    document.getElementById("options");
+
+  options.innerHTML = "";
+
+  question.options.forEach(
+    function(option,index){
+
+      const label =
+        document.createElement("label");
+
+      label.className = "option";
+
+      const input =
+        document.createElement("input");
+
+      input.type = "radio";
+
+      input.name =
+        "question_" + currentQuestion;
+
+      input.value = index;
+
+      if(
+        answers[currentQuestion] === index
+      ){
+        input.checked = true;
+      }
+
+      input.onchange = function(){
+
+        answers[currentQuestion] = index;
+
+        updateExamStatus();
+      };
+
+      label.appendChild(input);
+
+      label.appendChild(
+        document.createTextNode(option)
+      );
+
+      options.appendChild(label);
+    }
+  );
+
+  updateExamStatus();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+
+/* =========================================
+   UPDATE EXAM STATUS
+========================================= */
+
+function updateExamStatus(){
+
+  const answered =
+    answers.filter(function(answer){
+      return answer !== null;
+    }).length;
+
+  document.getElementById("answeredCount")
+    .textContent = answered;
+
+  document.getElementById("remainingCount")
+    .textContent =
+    examQuestions.length - answered;
+
+  document.getElementById("currentDisplay")
+    .textContent =
+    currentQuestion + 1;
+
+  const progress =
+    ((currentQuestion + 1) /
+      examQuestions.length) * 100;
+
+  document.getElementById("progressBar")
+    .style.width =
+    progress + "%";
+
+  const navButtons =
+    document.querySelectorAll(".nav-btn");
+
+  navButtons.forEach(
+    function(button,index){
+
+      button.classList.remove(
+        "current",
+        "answered"
+      );
+
+      if(answers[index] !== null){
+        button.classList.add("answered");
+      }
+
+      if(index === currentQuestion){
+        button.classList.add("current");
+      }
+    }
+  );
+}
+
+
+/* =========================================
+   NEXT QUESTION
+========================================= */
+
+function nextQuestion(){
+
+  if(
+    currentQuestion <
+    examQuestions.length - 1
+  ){
+
+    currentQuestion++;
+
+    renderQuestion();
+
+  } else {
+
+    alert(
+      "You are on the final question. Submit the examination when ready."
+    );
+  }
+}
+
+
+/* =========================================
+   PREVIOUS QUESTION
+========================================= */
+
+function previousQuestion(){
+
+  if(currentQuestion > 0){
+
+    currentQuestion--;
+
+    renderQuestion();
+  }
+}
+
+
+/* =========================================
+   SUBMIT EXAM
+========================================= */
+
+function submitExam(autoSubmit){
+
+  if(!autoSubmit){
+
+    const unanswered =
+      answers.filter(function(answer){
+        return answer === null;
+      }).length;
+
+    let message =
+      "Submit examination?";
+
+    if(unanswered > 0){
+
+      message =
+        "You still have " +
+        unanswered +
+        " unanswered question(s).\n\n" +
+        "Submit examination anyway?";
+    }
+
+    if(!confirm(message)){
+      return;
+    }
+  }
+
+  if(timerInterval){
+    clearInterval(timerInterval);
+  }
+
+  let correct = 0;
+  let incorrect = 0;
+  let unanswered = 0;
+
+  examQuestions.forEach(
+    function(question,index){
+
+      if(answers[index] === null){
+
+        unanswered++;
+
+      } else if(
+        answers[index] === question.answer
+      ){
+
+        correct++;
+
+      } else {
+
+        incorrect++;
+      }
+    }
+  );
+
+  const percentage =
+    Math.round(
+      (correct / examQuestions.length)
+      * 100
+    );
+
+  document.getElementById("examScreen")
+    .classList.add("hidden");
+
+  document.getElementById("resultScreen")
+    .classList.remove("hidden");
+
+  document.getElementById("resultScore")
+    .textContent =
+    percentage + "%";
+
+  document.getElementById("correctCount")
+    .textContent =
+    correct;
+
+  document.getElementById("incorrectCount")
+    .textContent =
+    incorrect;
+
+  document.getElementById("unansweredCount")
+    .textContent =
+    unanswered;
+
+  const status =
+    document.getElementById("resultStatus");
+
+  if(percentage >= 70){
+
+    status.textContent =
+      "PASS";
+
+    status.className =
+      "correct";
+
+  } else {
+
+    status.textContent =
+      "FAIL";
+
+    status.className =
+      "wrong";
+  }
+
+  buildReview();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
+
+/* =========================================
+   ANSWER REVIEW
+========================================= */
+
+function buildReview(){
+
+  const reviewArea =
+    document.getElementById("reviewArea");
+
+  reviewArea.innerHTML = "";
+
+  examQuestions.forEach(
+    function(question,index){
+
+      const review =
+        document.createElement("div");
+
+      review.className = "review";
+
+      const heading =
+        document.createElement("h3");
+
+      heading.textContent =
+        (index + 1) +
+        ". " +
+        question.question;
+
+      review.appendChild(heading);
+
+      const yourAnswer =
+        document.createElement("p");
+
+      if(answers[index] === null){
+
+        yourAnswer.innerHTML =
+          "<strong>Your answer:</strong> " +
+          "<span class='wrong'>Unanswered</span>";
+
+      } else {
+
+        const isCorrect =
+          answers[index] ===
+          question.answer;
+
+        yourAnswer.innerHTML =
+          "<strong>Your answer:</strong> " +
+          "<span class='" +
+          (isCorrect ? "correct" : "wrong") +
+          "'>" +
+          escapeHTML(
+            question.options[
+              answers[index]
+            ]
+          ) +
+          "</span>";
+      }
+
+      review.appendChild(yourAnswer);
+
+      const correctAnswer =
+        document.createElement("p");
+
+      correctAnswer.innerHTML =
+        "<strong>Correct answer:</strong> " +
+        "<span class='correct'>" +
+        escapeHTML(
+          question.options[
+            question.answer
+          ]
+        ) +
+        "</span>";
+
+      review.appendChild(correctAnswer);
+
+      if(question.explanation){
+
+        const explanation =
+          document.createElement("p");
+
+        explanation.innerHTML =
+          "<strong>Explanation:</strong> " +
+          escapeHTML(
+            question.explanation
+          );
+
+        review.appendChild(explanation);
+      }
+
+      reviewArea.appendChild(review);
+    }
+  );
+}
+
+
+/* =========================================
+   HTML SAFETY
+========================================= */
+
+function escapeHTML(value){
+
+  return String(value)
+    .replace(/&/g,"&amp;")
+    .replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;")
+    .replace(/"/g,"&quot;")
+    .replace(/'/g,"&#039;");
+}
+
+
+/* =========================================
+   RESTART
+========================================= */
+
+function restartExam(){
+
+  if(timerInterval){
+    clearInterval(timerInterval);
+  }
+
+  selectedDiscipline = "";
+  examQuestions = [];
+  currentQuestion = 0;
+  answers = [];
+  secondsRemaining = 7200;
+
+  document.getElementById("timer")
+    .textContent =
+    "02:00:00";
+
+  document.getElementById("resultScreen")
+    .classList.add("hidden");
+
+  document.getElementById("examScreen")
+    .classList.add("hidden");
+
+  document.getElementById("homeScreen")
+    .classList.remove("hidden");
+
+  document
+    .querySelectorAll(".discipline")
+    .forEach(function(item){
+      item.classList.remove("selected");
+    });
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+}
+
 </script>
 </body>
 </html>
