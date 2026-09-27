@@ -1,16 +1,515 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CodeGuard</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>CodeGuard QC Simulator</title>
+
+<style>
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Arial,sans-serif;
+  background:#08111f;
+  color:#eaf0f7;
+}
+
+header{
+  background:#0d1b2a;
+  padding:22px;
+  text-align:center;
+  border-bottom:3px solid #18c37e;
+}
+
+header h1{
+  margin:0;
+  font-size:28px;
+}
+
+header p{
+  margin:7px 0 0;
+  color:#9fb0c3;
+}
+
+.container{
+  max-width:750px;
+  margin:auto;
+  padding:20px;
+}
+
+.dashboard{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:10px;
+  margin-bottom:20px;
+}
+
+.card{
+  background:#122238;
+  padding:15px;
+  border-radius:10px;
+  text-align:center;
+}
+
+.card strong{
+  display:block;
+  color:#18c37e;
+  font-size:22px;
+  margin-top:5px;
+}
+
+.question-box{
+  background:#122238;
+  border-radius:12px;
+  padding:22px;
+}
+
+.category{
+  color:#18c37e;
+  font-size:13px;
+  font-weight:bold;
+  text-transform:uppercase;
+}
+
+h2{
+  font-size:20px;
+  line-height:1.45;
+}
+
+.option{
+  display:block;
+  width:100%;
+  text-align:left;
+  padding:14px;
+  margin:10px 0;
+  border:1px solid #33465f;
+  border-radius:8px;
+  background:#0d1b2a;
+  color:white;
+  font-size:15px;
+  cursor:pointer;
+}
+
+.option:hover{
+  border-color:#18c37e;
+}
+
+.correct{
+  background:#124b38!important;
+  border-color:#18c37e!important;
+}
+
+.wrong{
+  background:#5a2028!important;
+  border-color:#ff6470!important;
+}
+
+#explanation{
+  display:none;
+  margin-top:18px;
+  padding:15px;
+  background:#0b1828;
+  border-left:4px solid #18c37e;
+  line-height:1.5;
+}
+
+.next{
+  display:none;
+  width:100%;
+  margin-top:18px;
+  padding:14px;
+  border:0;
+  border-radius:8px;
+  background:#18c37e;
+  color:#04130d;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.result{
+  display:none;
+  text-align:center;
+  background:#122238;
+  padding:30px;
+  border-radius:12px;
+}
+
+.result h2{
+  font-size:27px;
+}
+
+.restart{
+  padding:14px 25px;
+  border:0;
+  border-radius:8px;
+  background:#18c37e;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+footer{
+  text-align:center;
+  color:#64778d;
+  padding:30px 10px;
+  font-size:12px;
+}
+
+@media(max-width:500px){
+  .dashboard{grid-template-columns:1fr 1fr 1fr}
+  .card{padding:10px 5px;font-size:12px}
+  .card strong{font-size:18px}
+}
+</style>
 </head>
 
 <body>
-  <h1>CodeGuard</h1>
-  <h2>Engineering Quality & Compliance Platform</h2>
 
-  <p>CodeGuard Test Simulation Platform
-  <p>QA/QC • Inspection • ITP • NCR • Technical Compliance</p>
+<header>
+<h1>🛡️ CodeGuard</h1>
+<p>Construction Quality Control Test Simulator</p>
+</header>
+
+<div class="container">
+
+<div id="quizArea">
+
+<div class="dashboard">
+
+<div class="card">
+Question
+<strong id="questionNumber">1/10</strong>
+</div>
+
+<div class="card">
+Score
+<strong id="score">0</strong>
+</div>
+
+<div class="card">
+Accuracy
+<strong id="accuracy">0%</strong>
+</div>
+
+</div>
+
+<div class="question-box">
+
+<div class="category" id="category"></div>
+
+<h2 id="question"></h2>
+
+<div id="options"></div>
+
+<div id="explanation"></div>
+
+<button class="next" id="nextButton" onclick="nextQuestion()">
+Next Question
+</button>
+
+</div>
+</div>
+
+<div class="result" id="result">
+
+<h2>Assessment Complete</h2>
+
+<p>Your final score:</p>
+
+<h1 id="finalScore"></h1>
+
+<p id="finalMessage"></p>
+
+<button class="restart" onclick="startQuiz()">
+Start New Test
+</button>
+
+</div>
+
+</div>
+
+<footer>
+CodeGuard • QC Training & Assessment Platform
+</footer>
+
+<script>
+
+const questions = [
+
+{
+category:"Concrete",
+question:"During concrete placement, a worker adds water to the concrete at site without an approved procedure. What should QC do?",
+options:[
+"Allow it if workability improves",
+"Stop the activity and assess the concrete",
+"Add additional cement",
+"Continue and record it later"
+],
+answer:1,
+explanation:"Uncontrolled addition of water can change the approved water-cement ratio and concrete properties. QC should stop the activity and evaluate compliance before allowing continuation."
+},
+
+{
+category:"Earthworks",
+question:"Backfill is being placed in layers thicker than the approved specification. What is the appropriate QC action?",
+options:[
+"Accept if the surface looks compacted",
+"Increase the number of tests only",
+"Stop the work and require compliant layer thickness",
+"Allow the contractor to decide"
+],
+answer:2,
+explanation:"Compaction must follow the approved layer thickness and procedure. Non-compliant layers should not simply be covered by subsequent work."
+},
+
+{
+category:"Material Control",
+question:"Material arrives on site without an approved material submittal. What should happen?",
+options:[
+"Install it if urgently required",
+"Use it temporarily",
+"Quarantine it until approval and verification",
+"Accept it based on supplier reputation"
+],
+answer:2,
+explanation:"Materials should be verified against approved project requirements before incorporation into permanent works."
+},
+
+{
+category:"Inspection",
+question:"What is the primary purpose of a WIR?",
+options:[
+"Record worker attendance",
+"Request inspection of completed work",
+"Approve commercial payments",
+"Replace the approved shop drawing"
+],
+answer:1,
+explanation:"A Work Inspection Request provides the formal mechanism for inspection and acceptance of completed work against approved requirements."
+},
+
+{
+category:"NCR",
+question:"A contractor continues covering defective work after an NCR has been issued. What should QC do?",
+options:[
+"Wait until completion",
+"Close the NCR",
+"Escalate and prevent concealment of the nonconforming work",
+"Approve the work conditionally"
+],
+answer:2,
+explanation:"Nonconforming work should remain controlled until an approved disposition and corrective action are implemented and verified."
+},
+
+{
+category:"ITP",
+question:"What does a Hold Point normally mean?",
+options:[
+"Work may continue without inspection",
+"Work cannot proceed beyond the point without required release",
+"It is an optional inspection",
+"It applies only to documentation"
+],
+answer:1,
+explanation:"A Hold Point prevents progression beyond a defined stage until the specified inspection, verification, or authorization has occurred."
+},
+
+{
+category:"Waterproofing",
+question:"Before waterproofing is covered, what is a key QC requirement?",
+options:[
+"Only check material color",
+"Verify installation and required testing before concealment",
+"Accept based only on contractor confirmation",
+"Cover immediately to protect the membrane"
+],
+answer:1,
+explanation:"Waterproofing becomes difficult to inspect after concealment. Required inspections and tests must therefore be completed and documented beforehand."
+},
+
+{
+category:"MEP",
+question:"An electrical panel is energized before required commissioning checks are completed. What is the appropriate response?",
+options:[
+"Continue because power is already available",
+"Stop and verify required pre-energization and commissioning controls",
+"Only photograph the panel",
+"Close outstanding inspections"
+],
+answer:1,
+explanation:"Energization should occur only after applicable installation inspections, safety checks, testing and commissioning prerequisites have been satisfied."
+},
+
+{
+category:"Documentation",
+question:"An approved shop drawing is changed on site without formal approval. How should QC treat the change?",
+options:[
+"Accept if the engineer verbally agrees",
+"Accept if construction is faster",
+"Treat it as an unauthorized deviation until formally reviewed",
+"Update the drawing after completion"
+],
+answer:2,
+explanation:"Construction should follow approved documents. Changes require the applicable review and approval process before implementation."
+},
+
+{
+category:"Quality Management",
+question:"Which action provides the strongest objective evidence that inspected work complies?",
+options:[
+"Contractor verbal confirmation",
+"Photographs alone",
+"Documented inspection and test records linked to approved requirements",
+"Worker experience"
+],
+answer:2,
+explanation:"Quality acceptance should be supported by traceable objective evidence demonstrating compliance with approved requirements."
+}
+
+];
+
+let quizQuestions=[];
+let current=0;
+let score=0;
+let answered=0;
+
+function shuffle(array){
+ return [...array].sort(()=>Math.random()-0.5);
+}
+
+function startQuiz(){
+
+ quizQuestions=shuffle(questions).slice(0,10);
+ current=0;
+ score=0;
+ answered=0;
+
+ document.getElementById("quizArea").style.display="block";
+ document.getElementById("result").style.display="none";
+
+ loadQuestion();
+ updateDashboard();
+}
+
+function loadQuestion(){
+
+ const q=quizQuestions[current];
+
+ document.getElementById("category").textContent=q.category;
+ document.getElementById("question").textContent=q.question;
+
+ const options=document.getElementById("options");
+ options.innerHTML="";
+
+ document.getElementById("explanation").style.display="none";
+ document.getElementById("nextButton").style.display="none";
+
+ q.options.forEach((option,index)=>{
+
+  const button=document.createElement("button");
+
+  button.className="option";
+  button.textContent=option;
+
+  button.onclick=()=>selectAnswer(index,button);
+
+  options.appendChild(button);
+
+ });
+
+ updateDashboard();
+}
+
+function selectAnswer(index,button){
+
+ const q=quizQuestions[current];
+
+ const buttons=document.querySelectorAll(".option");
+
+ buttons.forEach(b=>b.disabled=true);
+
+ answered++;
+
+ if(index===q.answer){
+   button.classList.add("correct");
+   score++;
+ }else{
+   button.classList.add("wrong");
+   buttons[q.answer].classList.add("correct");
+ }
+
+ const explanation=document.getElementById("explanation");
+
+ explanation.innerHTML=
+ "<strong>CodeGuard Review:</strong><br>"+q.explanation;
+
+ explanation.style.display="block";
+
+ document.getElementById("nextButton").style.display="block";
+
+ updateDashboard();
+}
+
+function updateDashboard(){
+
+ document.getElementById("questionNumber").textContent=
+ (current+1)+"/"+quizQuestions.length;
+
+ document.getElementById("score").textContent=score;
+
+ let accuracy=answered===0 ? 0 :
+ Math.round((score/answered)*100);
+
+ document.getElementById("accuracy").textContent=
+ accuracy+"%";
+}
+
+function nextQuestion(){
+
+ current++;
+
+ if(current>=quizQuestions.length){
+   finishQuiz();
+ }else{
+   loadQuestion();
+ }
+}
+
+function finishQuiz(){
+
+ document.getElementById("quizArea").style.display="none";
+
+ const result=document.getElementById("result");
+
+ result.style.display="block";
+
+ const percentage=Math.round(
+ (score/quizQuestions.length)*100
+ );
+
+ document.getElementById("finalScore").textContent=
+ score+" / "+quizQuestions.length+" ("+percentage+"%)";
+
+ let message;
+
+ if(percentage>=90){
+   message="Excellent QC knowledge.";
+ }else if(percentage>=75){
+   message="Good performance. Review the missed topics.";
+ }else if(percentage>=60){
+   message="Further QC training is recommended.";
+ }else{
+   message="Significant knowledge gaps identified. Review the fundamentals and retake the assessment.";
+ }
+
+ document.getElementById("finalMessage").textContent=message;
+}
+
+startQuiz();
+
+</script>
+
 </body>
 </html>
