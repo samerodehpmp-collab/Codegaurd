@@ -7,7 +7,9 @@
 <title>CodeGuard QC Simulator</title>
 
 <style>
-*{box-sizing:border-box}
+*{
+  box-sizing:border-box;
+}
 
 body{
   margin:0;
@@ -18,149 +20,223 @@ body{
 
 header{
   background:#0d1b2a;
-  padding:22px;
-  text-align:center;
-  border-bottom:3px solid #18c37e;
+  padding:20px;
+  border-bottom:1px solid #24364d;
 }
 
-header h1{
-  margin:0;
-  font-size:28px;
+.logo{
+  font-size:25px;
+  font-weight:bold;
 }
 
-header p{
-  margin:7px 0 0;
-  color:#9fb0c3;
+.logo span{
+  color:#39a8ff;
+}
+
+.subtitle{
+  color:#93a4b8;
+  margin-top:5px;
 }
 
 .container{
-  max-width:750px;
+  max-width:1100px;
   margin:auto;
   padding:20px;
 }
 
-.dashboard{
-  display:grid;
-  grid-template-columns:repeat(3,1fr);
-  gap:10px;
-  margin-bottom:20px;
-}
-
 .card{
-  background:#122238;
-  padding:15px;
-  border-radius:10px;
-  text-align:center;
+  background:#101d2d;
+  border:1px solid #26394f;
+  border-radius:14px;
+  padding:20px;
+  margin-bottom:18px;
 }
 
-.card strong{
-  display:block;
-  color:#18c37e;
-  font-size:22px;
-  margin-top:5px;
+h1,h2,h3{
+  margin-top:0;
 }
 
-.question-box{
-  background:#122238;
-  border-radius:12px;
-  padding:22px;
+select,
+button{
+  width:100%;
+  padding:14px;
+  margin-top:8px;
+  margin-bottom:16px;
+  border-radius:8px;
+  font-size:16px;
 }
 
-.category{
-  color:#18c37e;
-  font-size:13px;
+select{
+  background:#091523;
+  color:white;
+  border:1px solid #34495e;
+}
+
+button{
+  background:#1687d9;
+  color:white;
+  border:none;
   font-weight:bold;
-  text-transform:uppercase;
+  cursor:pointer;
 }
 
-h2{
+button:hover{
+  background:#0872bd;
+}
+
+.secondary{
+  background:#26394f;
+}
+
+.danger{
+  background:#b83232;
+}
+
+.hidden{
+  display:none;
+}
+
+.examTop{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+}
+
+.timer{
+  font-size:25px;
+  font-weight:bold;
+  color:#58c4ff;
+}
+
+.progress{
+  color:#aab8c8;
+}
+
+.question{
   font-size:20px;
-  line-height:1.45;
+  line-height:1.5;
+  margin:20px 0;
 }
 
 .option{
   display:block;
-  width:100%;
-  text-align:left;
-  padding:14px;
+  background:#0a1625;
+  border:1px solid #30455d;
+  padding:15px;
+  border-radius:9px;
   margin:10px 0;
-  border:1px solid #33465f;
-  border-radius:8px;
-  background:#0d1b2a;
-  color:white;
-  font-size:15px;
   cursor:pointer;
 }
 
 .option:hover{
-  border-color:#18c37e;
+  border-color:#39a8ff;
 }
 
-.correct{
-  background:#124b38!important;
-  border-color:#18c37e!important;
+.option input{
+  margin-right:10px;
 }
 
-.wrong{
-  background:#5a2028!important;
-  border-color:#ff6470!important;
+.navigation{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:10px;
+  margin-top:20px;
 }
 
-#explanation{
-  display:none;
-  margin-top:18px;
-  padding:15px;
-  background:#0b1828;
-  border-left:4px solid #18c37e;
-  line-height:1.5;
+.navigation button{
+  margin:0;
 }
 
-.next{
-  display:none;
-  width:100%;
-  margin-top:18px;
-  padding:14px;
-  border:0;
-  border-radius:8px;
-  background:#18c37e;
-  color:#04130d;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
+.questionGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fill,minmax(45px,1fr));
+  gap:8px;
+  margin-top:20px;
+}
+
+.qbtn{
+  padding:10px 4px;
+  margin:0;
+  background:#24364d;
+}
+
+.qbtn.answered{
+  background:#147d50;
+}
+
+.qbtn.flagged{
+  background:#c27b18;
+}
+
+.qbtn.current{
+  outline:2px solid #5bc0ff;
 }
 
 .result{
-  display:none;
   text-align:center;
-  background:#122238;
-  padding:30px;
-  border-radius:12px;
 }
 
-.result h2{
-  font-size:27px;
-}
-
-.restart{
-  padding:14px 25px;
-  border:0;
-  border-radius:8px;
-  background:#18c37e;
+.score{
+  font-size:55px;
   font-weight:bold;
-  cursor:pointer;
+  color:#55c8ff;
+}
+
+.pass{
+  color:#52d68a;
+}
+
+.fail{
+  color:#ff6767;
+}
+
+.reviewItem{
+  border-bottom:1px solid #2c4056;
+  padding:18px 0;
+}
+
+.correct{
+  color:#52d68a;
+}
+
+.incorrect{
+  color:#ff6767;
+}
+
+.infoGrid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px;
+  margin-top:15px;
+}
+
+.infoBox{
+  background:#091523;
+  padding:14px;
+  border-radius:8px;
+}
+
+.small{
+  color:#91a3b8;
+  font-size:14px;
 }
 
 footer{
   text-align:center;
-  color:#64778d;
-  padding:30px 10px;
-  font-size:12px;
+  color:#718397;
+  padding:30px;
 }
 
-@media(max-width:500px){
-  .dashboard{grid-template-columns:1fr 1fr 1fr}
-  .card{padding:10px 5px;font-size:12px}
-  .card strong{font-size:18px}
+@media(max-width:600px){
+  .navigation{
+    grid-template-columns:1fr;
+  }
+
+  .timer{
+    font-size:21px;
+  }
 }
 </style>
 </head>
@@ -168,346 +244,856 @@ footer{
 <body>
 
 <header>
-<h1>🛡️ CodeGuard</h1>
-<p>Construction Quality Control Test Simulator</p>
+  <div class="logo">CODE<span>GUARD</span></div>
+  <div class="subtitle">Quality Control Examination Simulator</div>
 </header>
 
 <div class="container">
 
-<div id="quizArea">
+<!-- HOME -->
 
-<div class="dashboard">
-
-<div class="card">
-Question
-<strong id="questionNumber">1/10</strong>
-</div>
+<section id="setup">
 
 <div class="card">
-Score
-<strong id="score">0</strong>
+
+<h1>QC Exam Simulator</h1>
+
+<p>
+Full-length professional Quality Control examination simulation.
+Select your discipline and examination authority.
+</p>
+
+<label>Discipline</label>
+
+<select id="discipline">
+<option value="">Select Discipline</option>
+<option>Civil / Structural</option>
+<option>Architectural</option>
+<option>Mechanical</option>
+<option>Electrical</option>
+<option>Plumbing</option>
+<option>Fire & Life Safety</option>
+<option>QA/QC</option>
+</select>
+
+<label>Exam / Entity</label>
+
+<select id="entity">
+<option value="">Select Exam / Entity</option>
+<option>CodeGuard Professional QC</option>
+<option>Client / Developer Assessment</option>
+<option>Contractor QC Assessment</option>
+<option>International Standards Assessment</option>
+<option>Custom Organization Exam</option>
+</select>
+
+<div class="infoGrid">
+
+<div class="infoBox">
+<strong>Duration</strong>
+<div>2 Hours</div>
+</div>
+
+<div class="infoBox">
+<strong>Exam Mode</strong>
+<div>Full Simulation</div>
+</div>
+
+<div class="infoBox">
+<strong>Pass Mark</strong>
+<div>70%</div>
+</div>
+
+<div class="infoBox">
+<strong>Question Type</strong>
+<div>Multiple Choice</div>
+</div>
+
+</div>
+
+<br>
+
+<button onclick="startExam()">START 2-HOUR EXAM</button>
+
 </div>
 
 <div class="card">
-Accuracy
-<strong id="accuracy">0%</strong>
+
+<h2>CodeGuard Platform</h2>
+
+<div class="infoGrid">
+
+<div class="infoBox">
+<strong>QC Simulator</strong>
+<div class="small">
+Professional discipline-based examination simulator.
+</div>
+</div>
+
+<div class="infoBox">
+<strong>QC Documents</strong>
+<div class="small">
+ITP, WIR, MIR, NCR, checklists and inspection workflows.
+</div>
+</div>
+
+<div class="infoBox">
+<strong>Standards</strong>
+<div class="small">
+Construction specifications, codes and acceptance criteria.
+</div>
+</div>
+
+<div class="infoBox">
+<strong>Financial</strong>
+<div class="small">
+Portfolio and financial analysis module.
+</div>
 </div>
 
 </div>
 
-<div class="question-box">
+</div>
 
-<div class="category" id="category"></div>
+</section>
 
-<h2 id="question"></h2>
 
-<div id="options"></div>
+<!-- EXAM -->
 
-<div id="explanation"></div>
+<section id="exam" class="hidden">
 
-<button class="next" id="nextButton" onclick="nextQuestion()">
-Next Question
+<div class="card">
+
+<div class="examTop">
+
+<div>
+<h2 id="examTitle">QC Examination</h2>
+<div class="progress" id="progress"></div>
+</div>
+
+<div class="timer" id="timer">
+02:00:00
+</div>
+
+</div>
+
+<div id="questionArea"></div>
+
+<div class="navigation">
+
+<button
+class="secondary"
+onclick="previousQuestion()">
+PREVIOUS
+</button>
+
+<button
+class="secondary"
+onclick="flagQuestion()">
+FLAG / REVIEW
+</button>
+
+<button onclick="nextQuestion()">
+NEXT
 </button>
 
 </div>
+
+<div id="questionGrid"
+class="questionGrid">
 </div>
 
-<div class="result" id="result">
+<br>
 
-<h2>Assessment Complete</h2>
-
-<p>Your final score:</p>
-
-<h1 id="finalScore"></h1>
-
-<p id="finalMessage"></p>
-
-<button class="restart" onclick="startQuiz()">
-Start New Test
+<button
+class="danger"
+onclick="confirmSubmit()">
+SUBMIT EXAM
 </button>
 
 </div>
 
+</section>
+
+
+<!-- RESULTS -->
+
+<section id="results" class="hidden">
+
+<div class="card result">
+
+<h1>Examination Result</h1>
+
+<div class="score" id="score"></div>
+
+<h2 id="status"></h2>
+
+<div id="resultDetails"></div>
+
+<br>
+
+<button onclick="reviewExam()">
+REVIEW ANSWERS
+</button>
+
+<button
+class="secondary"
+onclick="location.reload()">
+NEW EXAM
+</button>
+
 </div>
+
+<div
+id="review"
+class="card hidden">
+</div>
+
+</section>
+
+</div>
+
 
 <footer>
-CodeGuard • QC Training & Assessment Platform
+CodeGuard QC Simulator • Professional Quality Control Training Platform
 </footer>
 
+
 <script>
+
+/*
+=================================================
+QUESTION DATABASE
+=================================================
+
+This is the initial demonstration bank.
+
+Later we will build separate databases for:
+
+Civil / Structural
+Architectural
+Mechanical
+Electrical
+Plumbing
+Fire & Life Safety
+QA/QC
+
+and separate exam entities.
+*/
 
 const questions = [
 
 {
-category:"Concrete",
-question:"During concrete placement, a worker adds water to the concrete at site without an approved procedure. What should QC do?",
+q:"What is the primary purpose of an Inspection and Test Plan (ITP)?",
 options:[
-"Allow it if workability improves",
-"Stop the activity and assess the concrete",
-"Add additional cement",
-"Continue and record it later"
+"To replace approved construction drawings",
+"To define inspection, testing and verification requirements",
+"To calculate project cost",
+"To issue material purchase orders"
 ],
 answer:1,
-explanation:"Uncontrolled addition of water can change the approved water-cement ratio and concrete properties. QC should stop the activity and evaluate compliance before allowing continuation."
+explanation:
+"An ITP establishes inspection, testing, acceptance and verification requirements for construction activities."
 },
 
 {
-category:"Earthworks",
-question:"Backfill is being placed in layers thicker than the approved specification. What is the appropriate QC action?",
+q:"What should normally occur when delivered material does not comply with the approved material submittal?",
 options:[
-"Accept if the surface looks compacted",
-"Increase the number of tests only",
-"Stop the work and require compliant layer thickness",
-"Allow the contractor to decide"
+"Install the material and record it later",
+"Accept it if the contractor approves it",
+"Segregate or control the material and initiate the applicable nonconformance process",
+"Remove the manufacturer's identification"
 ],
 answer:2,
-explanation:"Compaction must follow the approved layer thickness and procedure. Non-compliant layers should not simply be covered by subsequent work."
+explanation:
+"Nonconforming material must be controlled to prevent unintended use or installation."
 },
 
 {
-category:"Material Control",
-question:"Material arrives on site without an approved material submittal. What should happen?",
+q:"What is the main purpose of a WIR?",
 options:[
-"Install it if urgently required",
-"Use it temporarily",
-"Quarantine it until approval and verification",
-"Accept it based on supplier reputation"
+"Request inspection of completed or defined work",
+"Approve project invoices",
+"Purchase construction materials",
+"Approve employee leave"
 ],
-answer:2,
-explanation:"Materials should be verified against approved project requirements before incorporation into permanent works."
+answer:0,
+explanation:
+"A Work Inspection Request is used to present completed or defined work for inspection and acceptance."
 },
 
 {
-category:"Inspection",
-question:"What is the primary purpose of a WIR?",
+q:"Before an inspection is accepted, the QC inspector should primarily verify:",
 options:[
-"Record worker attendance",
-"Request inspection of completed work",
-"Approve commercial payments",
-"Replace the approved shop drawing"
+"Only the contractor's verbal confirmation",
+"Applicable approved drawings, specifications and acceptance requirements",
+"Only project schedule",
+"Only material quantity"
 ],
 answer:1,
-explanation:"A Work Inspection Request provides the formal mechanism for inspection and acceptance of completed work against approved requirements."
+explanation:
+"Inspection must be performed against applicable approved technical requirements and acceptance criteria."
 },
 
 {
-category:"NCR",
-question:"A contractor continues covering defective work after an NCR has been issued. What should QC do?",
+q:"What is the purpose of an NCR?",
 options:[
-"Wait until completion",
-"Close the NCR",
-"Escalate and prevent concealment of the nonconforming work",
-"Approve the work conditionally"
+"To document and control nonconforming work or material",
+"To approve a variation automatically",
+"To replace an ITP",
+"To issue payment"
 ],
-answer:2,
-explanation:"Nonconforming work should remain controlled until an approved disposition and corrective action are implemented and verified."
+answer:0,
+explanation:
+"An NCR formally documents and controls a nonconformity until an acceptable disposition and closure are achieved."
 },
 
 {
-category:"ITP",
-question:"What does a Hold Point normally mean?",
+q:"A Hold Point generally means:",
 options:[
-"Work may continue without inspection",
-"Work cannot proceed beyond the point without required release",
-"It is an optional inspection",
-"It applies only to documentation"
-],
-answer:1,
-explanation:"A Hold Point prevents progression beyond a defined stage until the specified inspection, verification, or authorization has occurred."
-},
-
-{
-category:"Waterproofing",
-question:"Before waterproofing is covered, what is a key QC requirement?",
-options:[
-"Only check material color",
-"Verify installation and required testing before concealment",
-"Accept based only on contractor confirmation",
-"Cover immediately to protect the membrane"
+"Work can continue without inspection",
+"The activity cannot proceed beyond the defined point until required release or acceptance",
+"Inspection is optional",
+"Only photographs are required"
 ],
 answer:1,
-explanation:"Waterproofing becomes difficult to inspect after concealment. Required inspections and tests must therefore be completed and documented beforehand."
+explanation:
+"A Hold Point prevents progression beyond a specified stage until the required inspection or authorization is completed."
 },
 
 {
-category:"MEP",
-question:"An electrical panel is energized before required commissioning checks are completed. What is the appropriate response?",
+q:"What is the primary purpose of a MIR?",
 options:[
-"Continue because power is already available",
-"Stop and verify required pre-energization and commissioning controls",
-"Only photograph the panel",
-"Close outstanding inspections"
+"Request inspection and verification of delivered materials",
+"Request employee mobilization",
+"Approve design calculations",
+"Close the project"
 ],
-answer:1,
-explanation:"Energization should occur only after applicable installation inspections, safety checks, testing and commissioning prerequisites have been satisfied."
+answer:0,
+explanation:
+"A Material Inspection Request records and verifies delivered materials against approved requirements."
 },
 
 {
-category:"Documentation",
-question:"An approved shop drawing is changed on site without formal approval. How should QC treat the change?",
+q:"When a drawing conflicts with a project specification, the QC inspector should:",
 options:[
-"Accept if the engineer verbally agrees",
-"Accept if construction is faster",
-"Treat it as an unauthorized deviation until formally reviewed",
-"Update the drawing after completion"
-],
-answer:2,
-explanation:"Construction should follow approved documents. Changes require the applicable review and approval process before implementation."
-},
-
-{
-category:"Quality Management",
-question:"Which action provides the strongest objective evidence that inspected work complies?",
-options:[
-"Contractor verbal confirmation",
-"Photographs alone",
-"Documented inspection and test records linked to approved requirements",
-"Worker experience"
+"Choose whichever requirement is easier",
+"Ignore the conflict",
+"Raise the conflict through the project's technical/document-control process before relying on an assumption",
+"Allow construction to continue automatically"
 ],
 answer:2,
-explanation:"Quality acceptance should be supported by traceable objective evidence demonstrating compliance with approved requirements."
+explanation:
+"Conflicting requirements should be formally clarified through the project's contractual and technical document hierarchy."
+},
+
+{
+q:"Why are calibration records important for inspection and testing equipment?",
+options:[
+"They demonstrate that measuring equipment is controlled and suitable for reliable measurements",
+"They replace inspection reports",
+"They approve construction drawings",
+"They determine contractor payment"
+],
+answer:0,
+explanation:
+"Calibration and verification records provide evidence that monitoring and measuring equipment remains suitable for its intended use."
+},
+
+{
+q:"Which document normally contains detailed acceptance requirements for a construction activity?",
+options:[
+"Approved specification and applicable technical documents",
+"Attendance sheet",
+"Organization chart",
+"Payroll report"
+],
+answer:0,
+explanation:
+"Acceptance criteria must be derived from the applicable approved technical and contractual requirements."
 }
 
 ];
 
-let quizQuestions=[];
-let current=0;
-let score=0;
-let answered=0;
 
-function shuffle(array){
- return [...array].sort(()=>Math.random()-0.5);
+/*
+=================================================
+EXAM VARIABLES
+=================================================
+*/
+
+let currentQuestion=0;
+
+let answers=
+new Array(questions.length).fill(null);
+
+let flagged=
+new Array(questions.length).fill(false);
+
+let timeRemaining=2*60*60;
+
+let timerInterval;
+
+
+/*
+=================================================
+START EXAM
+=================================================
+*/
+
+function startExam(){
+
+const discipline=
+document.getElementById("discipline").value;
+
+const entity=
+document.getElementById("entity").value;
+
+if(!discipline || !entity){
+
+alert(
+"Please select both Discipline and Exam / Entity."
+);
+
+return;
+
 }
 
-function startQuiz(){
+document.getElementById("setup")
+.classList.add("hidden");
 
- quizQuestions=shuffle(questions).slice(0,10);
- current=0;
- score=0;
- answered=0;
+document.getElementById("exam")
+.classList.remove("hidden");
 
- document.getElementById("quizArea").style.display="block";
- document.getElementById("result").style.display="none";
+document.getElementById("examTitle")
+.innerText=
+discipline+" — "+entity;
 
- loadQuestion();
- updateDashboard();
+renderQuestion();
+
+buildQuestionGrid();
+
+startTimer();
+
 }
 
-function loadQuestion(){
 
- const q=quizQuestions[current];
+/*
+=================================================
+TIMER
+=================================================
+*/
 
- document.getElementById("category").textContent=q.category;
- document.getElementById("question").textContent=q.question;
+function startTimer(){
 
- const options=document.getElementById("options");
- options.innerHTML="";
+updateTimer();
 
- document.getElementById("explanation").style.display="none";
- document.getElementById("nextButton").style.display="none";
+timerInterval=setInterval(()=>{
 
- q.options.forEach((option,index)=>{
+timeRemaining--;
 
-  const button=document.createElement("button");
+updateTimer();
 
-  button.className="option";
-  button.textContent=option;
+if(timeRemaining<=0){
 
-  button.onclick=()=>selectAnswer(index,button);
+clearInterval(timerInterval);
 
-  options.appendChild(button);
+submitExam();
 
- });
-
- updateDashboard();
 }
 
-function selectAnswer(index,button){
+},1000);
 
- const q=quizQuestions[current];
-
- const buttons=document.querySelectorAll(".option");
-
- buttons.forEach(b=>b.disabled=true);
-
- answered++;
-
- if(index===q.answer){
-   button.classList.add("correct");
-   score++;
- }else{
-   button.classList.add("wrong");
-   buttons[q.answer].classList.add("correct");
- }
-
- const explanation=document.getElementById("explanation");
-
- explanation.innerHTML=
- "<strong>CodeGuard Review:</strong><br>"+q.explanation;
-
- explanation.style.display="block";
-
- document.getElementById("nextButton").style.display="block";
-
- updateDashboard();
 }
 
-function updateDashboard(){
 
- document.getElementById("questionNumber").textContent=
- (current+1)+"/"+quizQuestions.length;
+function updateTimer(){
 
- document.getElementById("score").textContent=score;
+let hours=
+Math.floor(timeRemaining/3600);
 
- let accuracy=answered===0 ? 0 :
- Math.round((score/answered)*100);
+let minutes=
+Math.floor((timeRemaining%3600)/60);
 
- document.getElementById("accuracy").textContent=
- accuracy+"%";
+let seconds=
+timeRemaining%60;
+
+document.getElementById("timer")
+.innerText=
+String(hours).padStart(2,"0")
++":"+
+String(minutes).padStart(2,"0")
++":"+
+String(seconds).padStart(2,"0");
+
 }
+
+
+/*
+=================================================
+QUESTION DISPLAY
+=================================================
+*/
+
+function renderQuestion(){
+
+const question=
+questions[currentQuestion];
+
+document.getElementById("progress")
+.innerText=
+"Question "
++(currentQuestion+1)
++" of "
++questions.length;
+
+let html=
+
+'<div class="question">'
++(currentQuestion+1)
++". "
++question.q+
+'</div>';
+
+question.options.forEach(
+(option,index)=>{
+
+const checked=
+answers[currentQuestion]===index
+?"checked":"";
+
+html+=
+
+'<label class="option">'+
+'<input type="radio" '+
+'name="answer" '+
+'value="'+index+'" '+
+checked+
+' onchange="saveAnswer('+index+')">'+
+option+
+'</label>';
+
+});
+
+document.getElementById("questionArea")
+.innerHTML=html;
+
+updateGrid();
+
+}
+
+
+/*
+=================================================
+SAVE ANSWER
+=================================================
+*/
+
+function saveAnswer(index){
+
+answers[currentQuestion]=index;
+
+updateGrid();
+
+}
+
+
+/*
+=================================================
+NAVIGATION
+=================================================
+*/
 
 function nextQuestion(){
 
- current++;
+if(currentQuestion<
+questions.length-1){
 
- if(current>=quizQuestions.length){
-   finishQuiz();
- }else{
-   loadQuestion();
- }
+currentQuestion++;
+
+renderQuestion();
+
 }
 
-function finishQuiz(){
-
- document.getElementById("quizArea").style.display="none";
-
- const result=document.getElementById("result");
-
- result.style.display="block";
-
- const percentage=Math.round(
- (score/quizQuestions.length)*100
- );
-
- document.getElementById("finalScore").textContent=
- score+" / "+quizQuestions.length+" ("+percentage+"%)";
-
- let message;
-
- if(percentage>=90){
-   message="Excellent QC knowledge.";
- }else if(percentage>=75){
-   message="Good performance. Review the missed topics.";
- }else if(percentage>=60){
-   message="Further QC training is recommended.";
- }else{
-   message="Significant knowledge gaps identified. Review the fundamentals and retake the assessment.";
- }
-
- document.getElementById("finalMessage").textContent=message;
 }
 
-startQuiz();
+
+function previousQuestion(){
+
+if(currentQuestion>0){
+
+currentQuestion--;
+
+renderQuestion();
+
+}
+
+}
+
+
+function goToQuestion(index){
+
+currentQuestion=index;
+
+renderQuestion();
+
+}
+
+
+function flagQuestion(){
+
+flagged[currentQuestion]=
+!flagged[currentQuestion];
+
+updateGrid();
+
+}
+
+
+/*
+=================================================
+QUESTION GRID
+=================================================
+*/
+
+function buildQuestionGrid(){
+
+let html="";
+
+questions.forEach((q,index)=>{
+
+html+=
+
+'<button '+
+'id="qbtn'+index+'" '+
+'class="qbtn" '+
+'onclick="goToQuestion('+index+')">'+
+(index+1)+
+'</button>';
+
+});
+
+document.getElementById("questionGrid")
+.innerHTML=html;
+
+updateGrid();
+
+}
+
+
+function updateGrid(){
+
+questions.forEach((q,index)=>{
+
+const btn=
+document.getElementById(
+"qbtn"+index
+);
+
+if(!btn)return;
+
+btn.className="qbtn";
+
+if(answers[index]!==null)
+btn.classList.add("answered");
+
+if(flagged[index])
+btn.classList.add("flagged");
+
+if(index===currentQuestion)
+btn.classList.add("current");
+
+});
+
+}
+
+
+/*
+=================================================
+SUBMIT
+=================================================
+*/
+
+function confirmSubmit(){
+
+const unanswered=
+answers.filter(
+a=>a===null
+).length;
+
+let message=
+"Submit examination?";
+
+if(unanswered>0){
+
+message+=
+"\n\nYou have "
++unanswered+
+" unanswered question(s).";
+
+}
+
+if(confirm(message)){
+
+submitExam();
+
+}
+
+}
+
+
+/*
+=================================================
+RESULTS
+=================================================
+*/
+
+function submitExam(){
+
+clearInterval(timerInterval);
+
+let correct=0;
+
+questions.forEach(
+(q,index)=>{
+
+if(
+answers[index]===
+q.answer
+){
+
+correct++;
+
+}
+
+});
+
+const percentage=
+Math.round(
+(correct/questions.length)*100
+);
+
+document.getElementById("exam")
+.classList.add("hidden");
+
+document.getElementById("results")
+.classList.remove("hidden");
+
+document.getElementById("score")
+.innerText=
+percentage+"%";
+
+const status=
+document.getElementById("status");
+
+if(percentage>=70){
+
+status.innerText="PASS";
+
+status.className="pass";
+
+}else{
+
+status.innerText="FAIL";
+
+status.className="fail";
+
+}
+
+const answered=
+answers.filter(
+a=>a!==null
+).length;
+
+document.getElementById(
+"resultDetails"
+).innerHTML=
+
+"<p>Correct Answers: "
++correct+
+" / "
++questions.length+
+"</p>"+
+"<p>Questions Answered: "
++answered+
+"</p>"+
+"<p>Pass Mark: 70%</p>";
+
+}
+
+
+/*
+=================================================
+REVIEW
+=================================================
+*/
+
+function reviewExam(){
+
+const review=
+document.getElementById("review");
+
+review.classList.remove("hidden");
+
+let html=
+"<h2>Answer Review</h2>";
+
+questions.forEach(
+(q,index)=>{
+
+const userAnswer=
+answers[index];
+
+const correct=
+userAnswer===q.answer;
+
+html+=
+
+'<div class="reviewItem">'+
+
+'<strong>'+
+(index+1)+
+". "+
+q.q+
+'</strong>'+
+
+'<p>Your answer: '+
+(
+userAnswer===null
+?"Not answered"
+:q.options[userAnswer]
+)+
+'</p>'+
+
+'<p class="'+
+(correct
+?"correct"
+:"incorrect")+
+'">'+
+(correct
+?"Correct"
+:"Incorrect")+
+'</p>'+
+
+'<p><strong>Correct answer:</strong> '+
+q.options[q.answer]+
+'</p>'+
+
+'<p class="small">'+
+q.explanation+
+'</p>'+
+
+'</div>';
+
+});
+
+review.innerHTML=html;
+
+review.scrollIntoView({
+behavior:"smooth"
+});
+
+}
 
 </script>
 
