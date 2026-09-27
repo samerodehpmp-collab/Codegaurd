@@ -305,8 +305,8 @@ Select your discipline and examination authority.
 </div>
 
 <div class="infoBox">
-<strong>Question Type</strong>
-<div>Multiple Choice</div>
+<strong>Questions</strong>
+<div>100 MCQs</div>
 </div>
 
 </div>
@@ -481,621 +481,3141 @@ QA/QC
 and separate exam entities.
 */
 
-const questions = [
-
-{
-q:"What is the primary purpose of an Inspection and Test Plan (ITP)?",
-options:[
-"To replace approved construction drawings",
-"To define inspection, testing and verification requirements",
-"To calculate project cost",
-"To issue material purchase orders"
-],
-answer:1,
-explanation:
-"An ITP establishes inspection, testing, acceptance and verification requirements for construction activities."
-},
-
-{
-q:"What should normally occur when delivered material does not comply with the approved material submittal?",
-options:[
-"Install the material and record it later",
-"Accept it if the contractor approves it",
-"Segregate or control the material and initiate the applicable nonconformance process",
-"Remove the manufacturer's identification"
-],
-answer:2,
-explanation:
-"Nonconforming material must be controlled to prevent unintended use or installation."
-},
-
-{
-q:"What is the main purpose of a WIR?",
-options:[
-"Request inspection of completed or defined work",
-"Approve project invoices",
-"Purchase construction materials",
-"Approve employee leave"
-],
-answer:0,
-explanation:
-"A Work Inspection Request is used to present completed or defined work for inspection and acceptance."
-},
-
-{
-q:"Before an inspection is accepted, the QC inspector should primarily verify:",
-options:[
-"Only the contractor's verbal confirmation",
-"Applicable approved drawings, specifications and acceptance requirements",
-"Only project schedule",
-"Only material quantity"
-],
-answer:1,
-explanation:
-"Inspection must be performed against applicable approved technical requirements and acceptance criteria."
-},
-
-{
-q:"What is the purpose of an NCR?",
-options:[
-"To document and control nonconforming work or material",
-"To approve a variation automatically",
-"To replace an ITP",
-"To issue payment"
-],
-answer:0,
-explanation:
-"An NCR formally documents and controls a nonconformity until an acceptable disposition and closure are achieved."
-},
-
-{
-q:"A Hold Point generally means:",
-options:[
-"Work can continue without inspection",
-"The activity cannot proceed beyond the defined point until required release or acceptance",
-"Inspection is optional",
-"Only photographs are required"
-],
-answer:1,
-explanation:
-"A Hold Point prevents progression beyond a specified stage until the required inspection or authorization is completed."
-},
-
-{
-q:"What is the primary purpose of a MIR?",
-options:[
-"Request inspection and verification of delivered materials",
-"Request employee mobilization",
-"Approve design calculations",
-"Close the project"
-],
-answer:0,
-explanation:
-"A Material Inspection Request records and verifies delivered materials against approved requirements."
-},
-
-{
-q:"When a drawing conflicts with a project specification, the QC inspector should:",
-options:[
-"Choose whichever requirement is easier",
-"Ignore the conflict",
-"Raise the conflict through the project's technical/document-control process before relying on an assumption",
-"Allow construction to continue automatically"
-],
-answer:2,
-explanation:
-"Conflicting requirements should be formally clarified through the project's contractual and technical document hierarchy."
-},
-
-{
-q:"Why are calibration records important for inspection and testing equipment?",
-options:[
-"They demonstrate that measuring equipment is controlled and suitable for reliable measurements",
-"They replace inspection reports",
-"They approve construction drawings",
-"They determine contractor payment"
-],
-answer:0,
-explanation:
-"Calibration and verification records provide evidence that monitoring and measuring equipment remains suitable for its intended use."
-},
-
-{
-q:"Which document normally contains detailed acceptance requirements for a construction activity?",
-options:[
-"Approved specification and applicable technical documents",
-"Attendance sheet",
-"Organization chart",
-"Payroll report"
-],
-answer:0,
-explanation:
-"Acceptance criteria must be derived from the applicable approved technical and contractual requirements."
-}
-
-];
-
-
-/*
-=================================================
-EXAM VARIABLES
-=================================================
-*/
-
-let currentQuestion=0;
-
-let answers=
-new Array(questions.length).fill(null);
-
-let flagged=
-new Array(questions.length).fill(false);
-
-let timeRemaining=2*60*60;
-
-let timerInterval;
-
-
-/*
-=================================================
-START EXAM
-=================================================
-*/
-
-function startExam(){
-
-const discipline=
-document.getElementById("discipline").value;
-
-const entity=
-document.getElementById("entity").value;
-
-if(!discipline || !entity){
-
-alert(
-"Please select both Discipline and Exam / Entity."
-);
-
-return;
-
-}
-
-document.getElementById("setup")
-.classList.add("hidden");
-
-document.getElementById("exam")
-.classList.remove("hidden");
-
-document.getElementById("examTitle")
-.innerText=
-discipline+" — "+entity;
-
-renderQuestion();
-
-buildQuestionGrid();
-
-startTimer();
-
-}
-
-
-/*
-=================================================
-TIMER
-=================================================
-*/
-
-function startTimer(){
-
-updateTimer();
-
-timerInterval=setInterval(()=>{
-
-timeRemaining--;
-
-updateTimer();
-
-if(timeRemaining<=0){
-
-clearInterval(timerInterval);
-
-submitExam();
-
-}
-
-},1000);
-
-}
-
-
-function updateTimer(){
-
-let hours=
-Math.floor(timeRemaining/3600);
-
-let minutes=
-Math.floor((timeRemaining%3600)/60);
-
-let seconds=
-timeRemaining%60;
-
-document.getElementById("timer")
-.innerText=
-String(hours).padStart(2,"0")
-+":"+
-String(minutes).padStart(2,"0")
-+":"+
-String(seconds).padStart(2,"0");
-
-}
-
-
-/*
-=================================================
-QUESTION DISPLAY
-=================================================
-*/
-
-function renderQuestion(){
-
-const question=
-questions[currentQuestion];
-
-document.getElementById("progress")
-.innerText=
-"Question "
-+(currentQuestion+1)
-+" of "
-+questions.length;
-
-let html=
-
-'<div class="question">'
-+(currentQuestion+1)
-+". "
-+question.q+
-'</div>';
-
-question.options.forEach(
-(option,index)=>{
-
-const checked=
-answers[currentQuestion]===index
-?"checked":"";
-
-html+=
-
-'<label class="option">'+
-'<input type="radio" '+
-'name="answer" '+
-'value="'+index+'" '+
-checked+
-' onchange="saveAnswer('+index+')">'+
-option+
-'</label>';
-
-});
-
-document.getElementById("questionArea")
-.innerHTML=html;
-
-updateGrid();
-
-}
-
-
-/*
-=================================================
-SAVE ANSWER
-=================================================
-*/
-
-function saveAnswer(index){
-
-answers[currentQuestion]=index;
-
-updateGrid();
-
-}
-
-
-/*
-=================================================
-NAVIGATION
-=================================================
-*/
-
-function nextQuestion(){
-
-if(currentQuestion<
-questions.length-1){
-
-currentQuestion++;
-
-renderQuestion();
-
-}
-
-}
-
-
-function previousQuestion(){
-
-if(currentQuestion>0){
-
-currentQuestion--;
-
-renderQuestion();
-
-}
-
-}
-
-
-function goToQuestion(index){
-
-currentQuestion=index;
-
-renderQuestion();
-
-}
-
-
-function flagQuestion(){
-
-flagged[currentQuestion]=
-!flagged[currentQuestion];
-
-updateGrid();
-
-}
-
-
-/*
-=================================================
-QUESTION GRID
-=================================================
-*/
-
-function buildQuestionGrid(){
-
-let html="";
-
-questions.forEach((q,index)=>{
-
-html+=
-
-'<button '+
-'id="qbtn'+index+'" '+
-'class="qbtn" '+
-'onclick="goToQuestion('+index+')">'+
-(index+1)+
-'</button>';
-
-});
-
-document.getElementById("questionGrid")
-.innerHTML=html;
-
-updateGrid();
-
-}
-
-
-function updateGrid(){
-
-questions.forEach((q,index)=>{
-
-const btn=
-document.getElementById(
-"qbtn"+index
-);
-
-if(!btn)return;
-
-btn.className="qbtn";
-
-if(answers[index]!==null)
-btn.classList.add("answered");
-
-if(flagged[index])
-btn.classList.add("flagged");
-
-if(index===currentQuestion)
-btn.classList.add("current");
-
-});
-
-}
-
-
-/*
-=================================================
-SUBMIT
-=================================================
-*/
-
-function confirmSubmit(){
-
-const unanswered=
-answers.filter(
-a=>a===null
-).length;
-
-let message=
-"Submit examination?";
-
-if(unanswered>0){
-
-message+=
-"\n\nYou have "
-+unanswered+
-" unanswered question(s).";
-
-}
-
-if(confirm(message)){
-
-submitExam();
-
-}
-
-}
-
-
-/*
-=================================================
-RESULTS
-=================================================
-*/
-
-function submitExam(){
-
-clearInterval(timerInterval);
-
-let correct=0;
-
-questions.forEach(
-(q,index)=>{
-
-if(
-answers[index]===
-q.answer
-){
-
-correct++;
-
-}
-
-});
-
-const percentage=
-Math.round(
-(correct/questions.length)*100
-);
-
-document.getElementById("exam")
-.classList.add("hidden");
-
-document.getElementById("results")
-.classList.remove("hidden");
-
-document.getElementById("score")
-.innerText=
-percentage+"%";
-
-const status=
-document.getElementById("status");
-
-if(percentage>=70){
-
-status.innerText="PASS";
-
-status.className="pass";
-
-}else{
-
-status.innerText="FAIL";
-
-status.className="fail";
-
-}
-
-const answered=
-answers.filter(
-a=>a!==null
-).length;
-
-document.getElementById(
-"resultDetails"
-).innerHTML=
-
-"<p>Correct Answers: "
-+correct+
-" / "
-+questions.length+
-"</p>"+
-"<p>Questions Answered: "
-+answered+
-"</p>"+
-"<p>Pass Mark: 70%</p>";
-
-}
-
-
-/*
-=================================================
-REVIEW
-=================================================
-*/
-
-function reviewExam(){
-
-const review=
-document.getElementById("review");
-
-review.classList.remove("hidden");
-
-let html=
-"<h2>Answer Review</h2>";
-
-questions.forEach(
-(q,index)=>{
-
-const userAnswer=
-answers[index];
-
-const correct=
-userAnswer===q.answer;
-
-html+=
-
-'<div class="reviewItem">'+
-
-'<strong>'+
-(index+1)+
-". "+
-q.q+
-'</strong>'+
-
-'<p>Your answer: '+
-(
-userAnswer===null
-?"Not answered"
-:q.options[userAnswer]
-)+
-'</p>'+
-
-'<p class="'+
-(correct
-?"correct"
-:"incorrect")+
-'">'+
-(correct
-?"Correct"
-:"Incorrect")+
-'</p>'+
-
-'<p><strong>Correct answer:</strong> '+
-q.options[q.answer]+
-'</p>'+
-
-'<p class="small">'+
-q.explanation+
-'</p>'+
-
-'</div>';
-
-});
-
-review.innerHTML=html;
-
-review.scrollIntoView({
-behavior:"smooth"
-});
-
-}
-
-</script>
-
-</body>
-</html>
+const questionBanks = {
+  "Civil / Structural": [
+    {
+      "q": "Initial inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: Before concrete placement, reinforcement QC should primarily verify:",
+      "options": [
+        "Approved drawings, bar size/spacing, cover, laps and cleanliness",
+        "Paint color",
+        "Delivery vehicle",
+        "Payroll"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: A failed field-density test on a compacted layer requires:",
+      "options": [
+        "Covering with the next layer",
+        "Rectification/recompaction and retesting before proceeding",
+        "Visual acceptance only",
+        "Increasing layer thickness"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: A pre-pour foundation survey mainly verifies:",
+      "options": [
+        "Location, dimensions and levels",
+        "Concrete color",
+        "Invoice value",
+        "Worker attendance"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: Honeycombing after formwork removal should be:",
+      "options": [
+        "Painted immediately",
+        "Assessed, documented and repaired under an approved disposition",
+        "Ignored if concealed",
+        "Filled without inspection"
+      ],
+      "answer": 1,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: Concrete curing is controlled primarily to support:",
+      "options": [
+        "Hydration, strength development and durability",
+        "Rebar procurement",
+        "Survey control",
+        "Formwork color"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    }
+  ],
+  "Architectural": [
+    {
+      "q": "Initial inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Readiness review: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Quality walkdown: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: Before tile installation, the substrate should be checked for:",
+      "options": [
+        "Readiness, flatness/level, cleanliness and approved preparation",
+        "Payroll status",
+        "Lighting color",
+        "Delivery vehicle"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: Wet-area waterproofing should be inspected:",
+      "options": [
+        "Before concealment and subsequent finishes",
+        "Only at handover",
+        "After tiling only",
+        "Only after leakage"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: An approved architectural mock-up primarily establishes:",
+      "options": [
+        "A workmanship and appearance benchmark",
+        "Concrete strength",
+        "Pipe pressure",
+        "Cable insulation"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: Before closing a gypsum-board partition, QC should verify:",
+      "options": [
+        "Concealed services, framing and required inspections",
+        "Furniture layout only",
+        "Final paint only",
+        "Invoice value"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Completion inspection: Door installation QC should verify:",
+      "options": [
+        "Frame alignment, clearances, hardware and operation",
+        "Concrete slump",
+        "Pipe slope",
+        "Soil density"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    }
+  ],
+  "Mechanical": [
+    {
+      "q": "Initial inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Initial inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-activity verification: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Hold-point inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Routine surveillance: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Pre-concealment inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Client inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Repeat inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Closeout inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Handover verification: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Field audit: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Mock-up review: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "First-off inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Area release inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Corrective-work inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Final acceptance inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Night-shift inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Access Base"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Before a piping pressure test, QC should verify:",
+      "options": [
+        "Approved test package, calibrated gauges and test boundaries",
+        "Paint color",
+        "Payroll",
+        "Furniture"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Ductwork before concealment should be checked for:",
+      "options": [
+        "Joints, supports, cleanliness and approved routing",
+        "Concrete cubes",
+        "Tile shade",
+        "Landscape levels"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: Mechanical equipment installation should follow:",
+      "options": [
+        "Approved drawings, manufacturer requirements and project specification",
+        "Invoice only",
+        "Operator preference",
+        "Concrete ticket"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: HVAC commissioning normally requires:",
+      "options": [
+        "Completed prerequisite inspections and pre-commissioning checks",
+        "No inspection records",
+        "Removed labels",
+        "Closed access regardless of status"
+      ],
+      "answer": 0,
+      "explanation": "Select the answer supported by approved project documents, applicable requirements and objective QC evidence."
+    },
+    {
+      "q": "Sample inspection: TAB in HVAC means:",
+      "options": [
+        "Testing, Adjusting and Balancing",
+        "Technical Approval Board",
+        "Thermal Air Barrier",
+        "Temporary Ac
+Preview truncated for large file
